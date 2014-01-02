@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0">
+
+	<title>SimpleMC</title>
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet' type='text/css' />
+
+	<style type="text/css">
+		*{margin:0;padding:0;box-sizing:border-box;}
+		body{font-family: "Roboto Condensed";}
+		.notice{
+			display: none;
+			padding: 10px;
+			background: #CCC;
+			color: #FFF;
+			text-align: center;
+			font-style: italic;
+			font-family: "Roboto Condensed";
+		}
+		.success{
+			background: green;
+		}
+		.error{
+			background: red;
+		}
+	</style>
+</head>
+<body>
+<div class="cmdRunning notice">
+	Running Command...
+</div>
+<div class="notice success">
+	Command Ran Successfully
+</div>
+<div class="notice error">
+	Error Running Command :(
+</div>
+<div class="cmds">
+	<a href="/cmd/wallpaper" class="cmd">wallpaper</a>
+	<form id="showimg">
+		<input type="text" id="img" value="" />
+		<button>ok</button>
+	</form>
+	<form id="watchyt">
+		<input type="text" id="yt" value="" />
+		<button>ok</button>
+	</form>
+</div>
+    
+<script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>
+<script type="text/javascript">
+function runCMD(cmd){
+	$(".cmdRunning").show();
+	$.get(cmd, function(rsp){
+		$(".cmdRunning").hide();
+		if(rsp == "ok"){
+			$(".success").show();
+			setTimeout(function(){
+				$(".success").fadeOut();
+			}, 500);
+		} else{
+			$(".error").show();
+			setTimeout(function(){
+				$(".error").fadeOut();
+			}, 500);
+		}
+	});
+}
+
+$(".cmd").click(function(){
+	runCMD($(this).attr("href"));
+	return false;
+});
+
+$("#showimg").submit(function(){
+	runCMD("/cmd/showimg?url=" + encodeURIComponent($("#img").val()));
+	return false;
+});
+
+$("#watchyt").submit(function(){
+	runCMD("/cmd/youtube?url=" + encodeURIComponent($("#yt").val()));
+	return false;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+	"name" : "simplemc",
+	"description" : "A simple media centre",
+	"dependencies" : {
+		"express" : "*",
+		"superagent" : "*"
+	},
+	"version" : "0.0.1"
+}
