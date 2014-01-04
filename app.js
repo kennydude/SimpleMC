@@ -2,15 +2,29 @@ var	express = require("express"),
 	app = express(),
 	fs = require("fs"),
 	request = require('superagent'),
-	exec = require('child_process').exec,
-	screen = require('./lib/screen');
+	exec = require('child_process').exec;
+
+// Command Set
+var os = require('os');
+if(os.type() == "Darwin"){
+	var commands = require('./lib/commands-osx.js');
+} else{
+	var commands = require('./lib/commands-rpi.js');
+}
+
+var currentCommand = undefined;
+function swapCommand(nc){
+	if(currentCommand != undefined) currentCommand.quit();
+	nc.launch();
+	currentCommand = nc;
+}
 
 app.get('/', function(req, res){
 	res.redirect('/index.html');
 });
 
 app.get('/cmd/wallpaper', function(req, res){
-	screen.switch_to('sudo', ['fbi','-T','1','/home/pi/b.jpg']);
+	swapCommand(new commands.ImageViewer( __dirname + "/public/b.jpg" ));
 	res.end("ok");
 });
 
@@ -20,7 +34,8 @@ app.get('/cmd/showimg', function(req, res){
 		var stream = fs.createWriteStream('/tmp/imageToShow');
 		ireq.pipe(stream);
 		ireq.on('end', function(){
-			screen.switch_to('sudo', ['fbi','-T','1','/tmp/imageToShow']);
+			swapCommand(new commands.ImageViewer( "/tmp/imageToShow" ));
+			//screen.switch_to('sudo', ['fbi','-T','1','/tmp/imageToShow']);
 			res.end('ok');
 		});
 	} catch(e){
@@ -35,9 +50,10 @@ app.get('/cmd/restart', function(req, res){
 
 app.get('/cmd/youtube', function(req, res){
 	console.log("YouTube Video Grabbing...");
-	screen.switch_to('sudo', ['fbi','-T','1', __dirname + '/public/load.gif']);
+	swapCommand(new commands.ImageViewer( __dirname + '/public/load.gif' ));
 	exec('youtube-dl -g ' + req.query.url, function (error, stdout, stderr) {
-		screen.switch_to('omxplayer', [stdout.replace('\n', '')]);
+		swapCommand(new commands.MediaPlayer( stdout.replace('\n', '') ));
+		//screen.switch_to('omxplayer', [stdout.replace('\n', '')]);
 		res.end("ok");
 	});
 	
