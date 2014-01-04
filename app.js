@@ -2,6 +2,7 @@ var	express = require("express"),
 	app = express(),
 	fs = require("fs"),
 	request = require('superagent'),
+	exec = require('child_process').exec,
 	screen = require('./lib/screen');
 
 app.get('/', function(req, res){
@@ -9,7 +10,7 @@ app.get('/', function(req, res){
 });
 
 app.get('/cmd/wallpaper', function(req, res){
-	screen.switch_to('sudo', 'fbi','-T','1','/home/pi/b.jpg']);
+	screen.switch_to('sudo', ['fbi','-T','1','/home/pi/b.jpg']);
 	res.end("ok");
 });
 
@@ -33,18 +34,13 @@ app.get('/cmd/restart', function(req, res){
 });
 
 app.get('/cmd/youtube', function(req, res){
-	screen.switch_to('sudo', [
-		'youtube-dl',
-		req.params.url,
-		'-o', 
-		'-',
-		'|',
-		'mplayer',
-		'-cache',
-		'8192',
-		'-'
-	]);
-	res.end("ok");
+	console.log("YouTube Video Grabbing...");
+	screen.switch_to('sudo', ['fbi','-T','1', __dirname + '/public/load.gif']);
+	exec('youtube-dl -g ' + req.query.url, function (error, stdout, stderr) {
+		screen.switch_to('omxplayer', [stdout.replace('\n', '')]);
+		res.end("ok");
+	});
+	
 });
 
 app.use(express.static(__dirname + '/public'))

@@ -1,0 +1,1 @@
+omxplayer $(youtube-dl $1 -g)
