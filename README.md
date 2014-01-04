@@ -2,8 +2,6 @@
 
 Simple Media Centre. Designed for Raspberry Pi*
 
-* Includes OSX support
-
 ## Why
 
 XMBC is too complex for what I want. I want lightweight + nice config!
@@ -17,6 +15,10 @@ Depending on the OS you want to run on you may need different applications insta
   * omxplayer [Available here](http://omxplayer.sconde.net/)
 * OSX
   * VLC (QuickTime is difficult to control; VLC is bad enough)
+
+All Platforms need
+
+* youtube-dl [Available here](http://rg3.github.io/youtube-dl/download.html)
 
 ## RUN!!!
 
