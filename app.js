@@ -1,8 +1,7 @@
 var	express = require("express"),
 	app = express(),
 	fs = require("fs"),
-	request = require('superagent'),
-	exec = require('child_process').exec;
+	request = require('superagent');
 
 // Command Set
 var os = require('os');
@@ -18,6 +17,16 @@ function swapCommand(nc){
 	nc.launch();
 	currentCommand = nc;
 }
+
+app.use(function(req, res, next){
+	res.error = function(d){
+		res.status(503).json({
+			"status" : "error",
+			"error" : d
+		});
+	};
+	next();
+});
 
 app.get('/', function(req, res){
 	res.redirect('/index.html');
@@ -35,7 +44,6 @@ app.get('/cmd/showimg', function(req, res){
 		ireq.pipe(stream);
 		ireq.on('end', function(){
 			swapCommand(new commands.ImageViewer( "/tmp/imageToShow" ));
-			//screen.switch_to('sudo', ['fbi','-T','1','/tmp/imageToShow']);
 			res.end('ok');
 		});
 	} catch(e){
@@ -43,23 +51,73 @@ app.get('/cmd/showimg', function(req, res){
 	}
 });
 
-app.get('/cmd/restart', function(req, res){
+app.get('/cmd/exit', function(req, res){
 	res.end("ok")
 	process.exit();
 });
 
+/*
 app.get('/cmd/youtube', function(req, res){
 	console.log("YouTube Video Grabbing...");
 	swapCommand(new commands.ImageViewer( __dirname + '/public/load.gif' ));
 	exec('youtube-dl -g ' + req.query.url, function (error, stdout, stderr) {
 		swapCommand(new commands.MediaPlayer( stdout.replace('\n', '') ));
-		//screen.switch_to('omxplayer', [stdout.replace('\n', '')]);
 		res.end("ok");
 	});
 	
 });
+*/
 
-app.use(express.static(__dirname + '/public'))
+// Begin Channel API {
+	var channels = {};
+	fs.readdirSync(__dirname + '/lib/channels').forEach(function(chnl){
+		var name = chnl.substr(0, chnl.length - 3); // remove .js
+		channels[name] = require('./lib/channels/' + chnl); // include code
+		app.get('/channels/' + name, function(req, res, next){
+			res.channel_json = function(js){
+				res.json({
+					"status" : "ok",
+					"channel" : name,
+					"data" : js
+				});
+			};
+			next();
+		}, channels[name].endpoint) // endpoint
+	});
+
+	app.get('/channels/list.json', function(req, res){
+		var out = [];
+		Object.keys(channels).forEach(function(channel){
+			out.push({
+				"type" : "link",
+				"thumbnail" : "/images/channel-" + channel + ".png",
+				"title" : channel,
+				"link" : "/channels/" + channel
+			});
+		});
+		res.json({
+			"status" : "ok",
+			"channel" : "home",
+			"data" : out
+		});
+	});
+
+	app.get('/channels/watch/:channel/:videoKey', function(req, res){
+		if(!channels[req.params.channel]) return res.error("No such channel");
+		swapCommand(new commands.ImageViewer( __dirname + '/public/load.gif' ));
+		console.log("Getting streaming url");
+		channels[req.params.channel].getStreamingURL(req.params.videoKey, function(err, url){
+			if(!url) return res.error("Technical glitch: " + err);
+			swapCommand(new commands.MediaPlayer( url ));
+			res.json({
+				"status" : "ok"
+			});
+		});
+	});
+
+// } End Channel API
+
+app.use(express.static(__dirname + '/public'));
 
 var port = 3000;
 console.log("SimpleMC Live on port " + 3000);

@@ -22,6 +22,8 @@ All Platforms need
 
 ## RUN!!!
 
+`npm install`
+
 `node app.js` go to http://localhost:3000 (or per IP address)
 
 DONE

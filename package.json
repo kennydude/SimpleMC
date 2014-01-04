@@ -3,7 +3,9 @@
 	"description" : "A simple media centre",
 	"dependencies" : {
 		"express" : "*",
-		"superagent" : "*"
+		"superagent" : "*",
+		"cheerio" : "*"
 	},
+	"repository" : "https://github.com/kennydude/SimpleMC.git",
 	"version" : "0.0.1"
 }

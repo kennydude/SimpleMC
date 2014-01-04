@@ -25,6 +25,18 @@
 		.error{
 			background: red;
 		}
+		.channel-item{
+			display: flex;
+		}
+		.vid-thumb{
+			width: 400px;
+		}
+		.vid-title{
+			width: 100%;
+		}
+		.pad10{
+			padding: 10px;
+		}
 	</style>
 </head>
 <body>
@@ -37,6 +49,10 @@
 <div class="notice error">
 	Error Running Command :(
 </div>
+<div id="channel-content">
+
+</div>
+
 <div class="cmds">
 	<a href="/cmd/wallpaper" class="cmd">wallpaper</a>
 	<form id="showimg">
@@ -50,6 +66,7 @@
 </div>
     
 <script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>
+<script type="text/javascript" src="/javascripts/channels.js"></script>
 <script type="text/javascript">
 function runCMD(cmd){
 	$(".cmdRunning").show();
